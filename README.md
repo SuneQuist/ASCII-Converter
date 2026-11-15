@@ -1,108 +1,127 @@
 <p align="center">
-  <img src="assets/front.svg" width="300" alt="Compressh logo" />
+  <img src="assets/front.svg" width="300" alt="ASCII Converter logo" />
 </p>
 
-# Compressh
+# ASCII Converter
 
-A lightweight desktop application for compressing images, video, audio, and PDF files through a simple drag-and-drop interface.
+A lightweight desktop application that converts images into ASCII art through a simple drag-and-drop interface, saving the result as an executable Bash script (`.sh`).
 
-Compressh was built with **Rust and Tauri** as a small experiment in creating a native desktop utility that removes the need to upload files to third-party compression websites.
+ASCII Converter was built with **Rust and Tauri** as a small experiment in image processing, pixel luminosity, and generating text-based representations of images.
 
 ## Why I Built It
 
-While working with design and marketing assets, I often saw people use heavily advertised online compression services just to reduce the size of a PDF, image, or video.
+I originally started this project while learning **Rust and Tauri**, experimenting with native desktop applications and local file processing.
 
-That seemed unnecessary for something that can be handled locally.
+The project eventually evolved into an image-to-ASCII converter, exploring how individual pixels and their brightness values can be represented using a limited set of characters.
 
-I built the first version of Compressh over a few hours while learning **Rust and Tauri**, with two main goals:
+The main goals were simple:
 
-- Keep the workflow extremely simple.
-- Process files locally instead of requiring them to be uploaded to an external service.
+- Keep the workflow straightforward with drag-and-drop functionality.
+- Process images entirely locally without uploading them to external services.
+- Generate ASCII art that can be displayed directly in a terminal.
+- Explore image processing and file generation using Rust.
 
 ## Application
 
 <p align="center">
-  <img src="assets/UI.png" width="60%" alt="Compressh application after launch" />
+  <img src="assets/UI.png" width="60%" alt="ASCII Converter application" />
 </p>
 
 Using the application is intentionally simple:
 
-1. Open Compressh.
-2. Drag one or more supported files into the window.
-3. Compressh detects the file type and starts the appropriate compression process.
-4. The compressed file is written next to the original with `_compressed` appended to its filename.
+1. Open ASCII Converter.
+2. Drag and drop an image into the application window.
+3. The image is decoded and converted into ASCII characters based on pixel luminosity.
+4. The generated ASCII art is embedded in a `.sh` file and saved in the same directory as the original image.
 
 For example:
 
 ```text
-report.pdf
+photo.png
     ↓
-report_compressed.pdf
+photo.sh
 ```
 
-Multiple files can be dropped into the application at once and are processed independently.
+Running the generated script in a Bash-compatible terminal prints the ASCII representation of the original image.
+
+The original image remains unchanged.
 
 ## How It Works
 
-Compressh uses a small Tauri frontend for file interaction and a Rust backend for launching the appropriate compression tools.
+ASCII Converter uses a small Tauri frontend for file interaction and a Rust backend for image processing and ASCII generation.
 
 ```text
-                 Compressh
-                    │
-            Drag-and-drop files
-                    │
-                    ▼
-           JavaScript frontend
-                    │
-              Tauri command
-                    │
-                    ▼
-              Rust backend
-               /         \
-              /           \
-             ▼             ▼
-         FFmpeg        Ghostscript
-             │             │
-     Image / Audio /      PDF
-          Video
-              \           /
-               \         /
-                    ▼
-             Compressed file
+               ASCII Converter
+                      │
+              Drag-and-drop Image
+                      │
+                      ▼
+              JavaScript Frontend
+                      │
+                 Tauri Command
+                      │
+                      ▼
+                 Rust Backend
+                      │
+                 Decode Image
+                      │
+                      ▼
+                Read Pixel Data
+                      │
+                      ▼
+              Luminosity Mapping
+                      │
+                      ▼
+                ASCII Generation
+                      │
+                      ▼
+               Generate .sh File
+                      │
+                      ▼
+             Save Next to Original
 ```
 
-The frontend listens for Tauri drag-and-drop events, validates the file extension, and invokes the corresponding Rust command.
+The frontend listens for Tauri drag-and-drop events and passes the selected image path to the Rust backend.
 
-The Rust backend performs the actual processing using:
+Rust uses the `image` crate to decode the image and `image_ascii` to generate its ASCII representation.
 
-- **FFmpeg** for images, audio, and video.
-- **Ghostscript** for PDF compression.
+The ASCII generator uses a small character set:
 
-Compression runs on separate threads so the application can process multiple dropped files without blocking the main UI.
+```rust
+['.', '/', '%', '#']
+```
+
+Each character represents a different level of brightness, allowing the image to be reconstructed as text.
+
+The resulting ASCII art is embedded in a Bash script using a heredoc, allowing it to be printed directly to the terminal when executed.
+
+All processing happens locally without external executables or online services.
 
 ## Supported Formats
 
+The image decoder is configured to support:
+
 | Type | Formats |
 | --- | --- |
-| Images | `.png`, `.jpg`, `.webp` |
-| Video | `.mp4`, `.mov`, `.mkv`, `.avi` |
-| Audio | `.mp3`, `.aac`, `.wav`, `.flac` |
-| Documents | `.pdf` |
+| Images | `.png`, `.jpg`, `.jpeg` |
+| Output | `.sh` |
 
-Different FFmpeg options are selected depending on the media type. PDFs are handled separately using Ghostscript's PDF writer and image downsampling options.
+The generated Bash script contains the ASCII representation of the image.
 
 ## Tech Stack
 
 **Desktop application:** Tauri 2  
 **Backend:** Rust  
 **Frontend:** HTML, CSS, JavaScript  
-**Media processing:** FFmpeg  
-**PDF processing:** Ghostscript
+**Image decoding:** `image` crate  
+**ASCII generation:** `image_ascii` crate
+
+No FFmpeg, Ghostscript, or external media-processing tools are required.
 
 ## Project Structure
 
 ```text
-compressh/
+ascii-converter/
 ├── assets/
 │   ├── front.svg
 │   └── UI.png
@@ -116,7 +135,6 @@ compressh/
 │   │   ├── main.rs
 │   │   └── lib.rs
 │   │
-│   ├── bin/
 │   ├── Cargo.toml
 │   └── tauri.conf.json
 │
@@ -124,11 +142,18 @@ compressh/
 └── README.md
 ```
 
-Most of the application logic is split between the drag-and-drop handling in the frontend and the Rust commands responsible for starting FFmpeg or Ghostscript.
+Most of the application logic is divided between drag-and-drop handling in the JavaScript frontend and image processing in the Rust backend.
 
 ## Running From Source
 
-The project requires a working Rust and Node.js environment with the dependencies required by Tauri.
+The project requires a working Rust and Node.js environment with the system dependencies required by Tauri.
+
+Clone the repository:
+
+```bash
+git clone <repository-url> ascii-converter
+cd ascii-converter
+```
 
 Install the JavaScript dependencies:
 
@@ -148,8 +173,18 @@ Build a release version:
 npm run tauri build
 ```
 
+The generated application and installers can be found inside:
+
+```text
+src-tauri/target/release/bundle/
+```
+
 ## Current Status
 
-The current compression backend is primarily configured for **Windows** and bundles Windows builds of FFmpeg and Ghostscript as Tauri resources.
+ASCII Converter currently focuses on converting images into ASCII art and generating Bash scripts containing the result.
 
-The Tauri application itself is designed to be cross-platform, but Linux and macOS support would require resolving and packaging the appropriate platform-specific FFmpeg and Ghostscript binaries.
+The application is developed and tested on **Windows**. Generated `.sh` files require a Bash-compatible environment, such as Linux, macOS, Git Bash, or WSL, to execute.
+
+All image processing is handled locally in Rust, without uploading files or invoking external compression tools.
+
+The project remains a small learning experiment exploring **Rust, Tauri, image processing, and text-based image representation**.
