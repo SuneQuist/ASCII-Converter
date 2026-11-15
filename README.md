@@ -21,6 +21,14 @@ The main goals were simple:
 - Generate ASCII art that can be displayed directly in a terminal.
 - Explore image processing and file generation using Rust.
 
+## Usage
+So after you drop in an image, you get back a .sh file, you can either drop the .sh or not when transferring to your linux env.
+Upload the file to your **/env/update-motd.d/** folder and try either login again or run **sudo run-parts /etc/update-motd.d/**
+
+### Examples
+<img width="1018" height="619" alt="image" src="https://github.com/user-attachments/assets/6f366bf8-2e59-4228-a699-edefa541488c" />
+<img width="785" height="528" alt="image" src="https://github.com/user-attachments/assets/7e80b6c3-dff1-4119-9e99-24844d61c017" />
+
 ## Application
 
 <p align="center">
