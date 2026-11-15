@@ -72,3 +72,44 @@
   75% {transform:translate(0,30px)}
   100%{transform:translate(0,0)}
 }
+
+.floater {
+  display: none;
+  position: absolute;
+  top: 1rem;
+  left: 50%;
+  transform: translate(-50%, 0);
+
+  align-items: center;
+  gap: 1rem;
+}
+
+.floater.-visible {
+  display: flex;
+}
+
+fieldset {
+  box-sizing: border-box;
+  border: none;
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+
+  min-width: 200px;
+}
+
+label {
+  font-size: 0.75rem;
+  color: blakc;
+  font-weight: bold;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+#resize-width, #resize-height {
+  box-sizing: border-box;
+  padding: 0.35rem 0.5rem;
+
+  border: 1px solid black;
+  border-radius: 3px;
+}

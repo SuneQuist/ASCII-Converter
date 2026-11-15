@@ -5,6 +5,10 @@ const dropzone = document.getElementById('drop-zone');
 const loader = document.querySelector('.loader');
 const screen = dropzone.querySelector('img');
 
+const floater = document.querySelector('.floater'); // Container for resizers 
+const resize_width = document.getElementById('resize-width');
+const resize_height = document.getElementById('resize-height');
+
 var processes = 0;
 
 function activate_drop() {
@@ -21,8 +25,14 @@ function activate_drop() {
     paths.paths.forEach(path => {
       const ext = (path.split('.')).pop();
       if (allowed_extensions.includes(ext.toLowerCase())) {
-        if ( ext === 'pdf' ) { invoke('run_gs', { path: path, cmd: '' }) }
-        else { invoke('run_ffmpeg', { path: path }); }
+        let width = resize_width.valueAsNumber;
+        let height = resize_height.valueAsNumber
+
+        invoke('to_ascii', { 
+          path: path, 
+          width: !isNaN(width) && width > 0 ? width : 0, 
+          height: !isNaN(height) && height > 0 ? height : 0
+        });
         
         processes++;
         loader.classList.add('-visible');
